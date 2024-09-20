@@ -1,0 +1,4 @@
+LIBRARY CapturA+
+EXPORTS 
+InstallHook
+UninstallHook

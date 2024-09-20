@@ -1,0 +1,29 @@
+#define IDR_VERSION 1
+IDR_VERSION VERSIONINFO
+FILEVERSION 1,2024,05,05
+PRODUCTVERSION 1,2024,05,05
+FILEOS 0x00000004
+FILETYPE 0x00000001
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "040904E4"
+    BEGIN
+      VALUE "FileVersion", "1.2024.05.05\0"
+      VALUE "ProductVersion", "1.2024.05.05\0"
+      VALUE "Company", "www.carabez.com\0"
+      VALUE "Support", "franciscojavier@carabez.com\0"
+      VALUE "FileDescription", "Mouse Click Monitor\0"
+      VALUE "InternalName", "ImaginAh\0"
+      VALUE "OriginalFilename", "ImaginA+.dll\0"
+      VALUE "ProductName", "ImaginA+\0"      
+      VALUE "LegalCopyright", "©2006-2019 Francisco Javier Carabez Barajas\0"
+      VALUE "LegalTrademarks", "©2006-2019 Francisco Javier Carabez Barajas\0"
+    END
+  END
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x0409, 0x04E4
+  END
+END
+1   24  DISCARDABLE "CapturAh.xml"

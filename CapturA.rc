@@ -1,0 +1,84 @@
+#define IDR_VERSION 1
+IDR_VERSION VERSIONINFO
+FILEVERSION 1,2024,09,08
+PRODUCTVERSION 1,2024,09,08
+FILEOS 0x00000004
+FILETYPE 0x00000001
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "040904E4"
+    BEGIN
+      VALUE "FileVersion","1.2024.09.08\0"
+      VALUE "ProductVersion","1.2024.09.08\0"
+      VALUE "CompanyWebPage","www.carabez.com\0"
+      VALUE "MailAddress","franciscojavier@carabez.com\0"
+      VALUE "FileDescription","Screen Capture\0"
+      VALUE "InternalName","CapturA+\0"
+      VALUE "OriginalFilename","CapturA+.exe\0"
+      VALUE "ProductName","Ctrl+Shift+Alt+PrtScn show main setting.\0"
+      VALUE "Compiler","MSASM32 11.0 from MASM32 Project\0"
+      VALUE "LegalCopyright","©2006-2024 Francisco Javier Carabez Barajas\0"
+      VALUE "LegalTrademarks","©2006-2024 Francisco Javier Carabez Barajas\0"
+    END
+  END
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x0409, 0x04E4
+  END
+END
+1   24  DISCARDABLE "Captura+.xml"
+400 MENUEX MOVEABLE IMPURE LOADONCALL DISCARDABLE
+BEGIN
+    POPUP "&File", , , 0
+    BEGIN
+        MENUITEM "&Save",401
+        MENUITEM "&Exit ",402
+    END
+    POPUP "&Advance", , , 0
+    BEGIN
+        MENUITEM "Start",410    
+        MENUITEM "Monitor...",411
+    END
+    POPUP "&Help", , , 0
+    BEGIN
+        MENUITEM "&About",490
+    END
+END
+
+//
+//
+500 ICON DISCARDABLE "./images/IconMain.ico"
+//501 ICON DISCARDABLE "./images/NoIcon.ico"
+502 ICON DISCARDABLE "./images/OnOffAscent32.ico"
+503 ICON DISCARDABLE "./images/OnOffUnpush32.ico"
+504 ICON DISCARDABLE "./images/CameraAscent32.ico"
+505 ICON DISCARDABLE "./images/CameraUnpush32.ico"
+506 ICON DISCARDABLE "./images/FileAscent32.ico"
+507 ICON DISCARDABLE "./images/FileUnpush32.ico"
+508 ICON DISCARDABLE "./images/SettingsAscent32.ico"
+509 ICON DISCARDABLE "./images/SettingsUnpush32.ico"
+510 ICON DISCARDABLE "./images/HotkeysAscent32.ico"
+511 ICON DISCARDABLE "./images/HotkeysUnpush32.ico"
+512 ICON DISCARDABLE "./images/WarningAscent32.ico"
+513 ICON DISCARDABLE "./images/WarningUnpush32.ico"
+514 ICON DISCARDABLE "./images/AboutAscent32.ico"
+515 ICON DISCARDABLE "./images/AboutUnpush32.ico"
+516 ICON DISCARDABLE "./images/ExitAscent32.ico"
+517 ICON DISCARDABLE "./images/ExitUnpush32.ico"
+518 ICON DISCARDABLE "./images/SaveAscent32.ico"
+519 ICON DISCARDABLE "./images/SaveUnpush32.ico"
+520 ICON DISCARDABLE "./images/AutoshotAscent32.ico"
+521 ICON DISCARDABLE "./images/AutoshotUnpush32.ico"
+522 ICON DISCARDABLE "./images/ToMailAscent32.ico"
+523 ICON DISCARDABLE "./images/ToMailUnpush32.ico"
+524 ICON DISCARDABLE "./images/ToClipAscent32.ico"
+525 ICON DISCARDABLE "./images/ToClipUnpush32.ico"
+526 ICON DISCARDABLE "./images/HideAscent32.ico"
+527 ICON DISCARDABLE "./images/HideUnpush32.ico"
+528 ICON DISCARDABLE "./images/ToPathAscent32.ico"
+529 ICON DISCARDABLE "./images/ToPathUnpush32.ico"
+
+600 CURSOR DISCARDABLE "./images/RArrow.cur"
+700 IMAGE DISCARDABLE "./images/lente.jpg"
+800 WAVE DISCARDABLE "./images/camera.wav"
