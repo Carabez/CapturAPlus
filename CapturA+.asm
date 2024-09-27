@@ -2237,7 +2237,7 @@ InitDialogWinMain               proc hWnd:DWORD
         Invoke UpdateActivityLog,addr szActivity_LoadLibraryInit,addr szCapturaDll,1,0
         Invoke CapturA_LoadLibrary
         .if eax
-            szText szActivity_LoadLibrarySucesss,"-Load Dll sucess: "
+            szText szActivity_LoadLibrarySucesss,"-Load Dll success: "
             szText szActivity_LoadLibraryNotifySuccess,"Capture on each Mouse click is available."
             Invoke UpdateActivityLog,addr szActivity_LoadLibrarySucesss,addr szActivity_LoadLibraryNotifySuccess,1,0
         .else            
