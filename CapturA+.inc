@@ -42,7 +42,7 @@ AA_ERROR_NOT_IMPLEMENTED        equ -006    ;Called Function or parameter was NO
 ;                       Captura.Dll
 ;=================================================
 align 4
-szCapturaDll                    db "captura+"               ,0
+;szCapturaDll                    db "captura+"               ,0
 ;
 szCapturaDll_InstallHook        db "InstallHook"            ,0
 szCapturaDll_UninstallHook      db "UninstallHook"          ,0
@@ -60,6 +60,8 @@ CapturaDll                      _CapturaDll <>
                     ;UNINITIALIZED DATA
 ; #########################################################################
 ; ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+align 4
+szCapturaDll                    db MAX_PATH dup(?) ;Extracts "CapturA+" from Path.
 .code
 ; ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
 ; #########################################################################

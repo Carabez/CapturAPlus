@@ -620,8 +620,7 @@ option casemap :none      ; Case Sensitive
    ;
     szProgramPath               db MAX_PATH dup(?)
     szImageFilePath             db MAX_PATH dup(?)
-    szProgramName               db MAX_PATH dup(?)
-    szAppName                   db MAX_PATH dup(?)
+    szProgramName               db MAX_PATH dup(?) ;Extracts "CapturA+" from Path.
     szQuotedPath                db MAX_PATH+MAX_PATH dup(?)                ;Quoted full Program Path to put on registry
     szIniFile                   db MAX_PATH dup(?)
     szCurFile                   db MAX_PATH dup(?)
@@ -1100,6 +1099,7 @@ RunCmdAtMainEntry               proc
     sub eax,4
     mov byte ptr [eax],00H                            ;Remove .exe
     ;
+    Invoke lstrcpy,addr szCapturaDll,addr szProgramName
     ;szText szServiceName,"MyService"
     ;Invoke ServiceManager,addr szServiceName,0,0,REMOVE      ;PROTO :DWORD,:DWORD,:DWORD,:BYTE ;(ServiceName),(ServiceDesc),(ServicePath),(INSTALL,REMOVE,ISINSTALLED,ISRUNNING)
     ;
@@ -1992,7 +1992,6 @@ InitDialogWinMain               proc hWnd:DWORD
         Invoke lstrcpy,addr TrayBalloonNote.szTip,addr szAppTitle
         mov TrayBalloonNote.uVersion,NIM_SETVERSION ;Menor a Win2000 = NIM_SETVERSION, Mayor o igual win2000 = NOTIFYICON_VERSION
         mov TrayBalloonNote.dwInfoFlags,NIIF_WARNING
-        ;Invoke SetWindowText,hWinMain,ADDR szAppName
         ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         ;
         ;CREATE TOOLTIP
@@ -2239,11 +2238,12 @@ InitDialogWinMain               proc hWnd:DWORD
         Invoke CapturA_LoadLibrary
         .if eax
             szText szActivity_LoadLibrarySucesss,"-Load Dll sucess: "
-            Invoke UpdateActivityLog,addr szActivity_LoadLibrarySucesss,addr szCapturaDll,1,0
+            szText szActivity_LoadLibraryNotifySuccess,"Capture on each Mouse click is available."
+            Invoke UpdateActivityLog,addr szActivity_LoadLibrarySucesss,addr szActivity_LoadLibraryNotifySuccess,1,0
         .else            
             szText szActivity_LoadLibraryFails,"-Load Dll fails: "
-            szText szActivity_LoadLibraryNotify,"Capture on each Mouse click not available."
-            Invoke UpdateActivityLog,addr szActivity_LoadLibraryFails,addr szActivity_LoadLibraryNotify,1,0
+            szText szActivity_LoadLibraryNotifyFail,"Capture on each Mouse click not available."
+            Invoke UpdateActivityLog,addr szActivity_LoadLibraryFails,addr szActivity_LoadLibraryNotifyFail,1,0
             Invoke SendMessage,hCombo5,CB_DELETESTRING,2,0 ;wParam=The zero-based index of the string to delete,lParam=This parameter is not used.
         .endif
         ;
