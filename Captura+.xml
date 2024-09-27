@@ -1,5 +1,5 @@
 <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0" xmlns:asmv3="urn:schemas-microsoft-com:asm.v3" >
-    <assemblyIdentity version="2.2024.09.10" processorArchitecture="X86" name="Captura+.exe" type="Win32"/>
+    <assemblyIdentity version="2.2024.09.26" processorArchitecture="X86" name="Captura+.exe" type="Win32"/>
     <description>Captura+: Press Ctrl+Shift+Alt+PrtScn to show GUI setting..</description>
     <dependency>
         <dependentAssembly>

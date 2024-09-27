@@ -513,7 +513,9 @@ option casemap :none      ; Case Sensitive
     szHOTKEY_SHIFT_CTRL_ALT_E               db "SHIFT+CTRL+ALT+E",0
     ;
     szNewLine                               db 13,10,0
-    szApplicationHistory                    db "Version 2.2024.09.10",13,10
+    szApplicationHistory                    db "Version 2.2024.09.26",13,10
+                                            db "-Fix bug when starting hidden.",13,10,13,10
+                                            db "Version 2.2024.09.10",13,10
                                             db "-New look and feel but the same 'what you see is what you get'.",13,10,13,10
                                             db "Version 1.2024.08.30",13,10
                                             db "-New: Added option to capture Active Monitor (the one that have the active windows with focus).",13,10,13,10
@@ -685,7 +687,7 @@ option casemap :none      ; Case Sensitive
     bAutoShot_TimerSeconds      db ?
     bAutoShotStartAtInit        db ?
     ;
-    bIsWindowStyleTOOLWINDOW    db ? ;When open Hidden, style is change to TOOLWINDOW to hide Taskbar Application Icon
+    dIsWindowStyleTOOLWINDOW    dd ? ;When open Hidden, style is change to TOOLWINDOW to hide Taskbar Application Icon
     ;
     ; RUNTIME VARIABLES FOR PAGE "FILE"
     bCopyFilePathToClipboard    db ?
@@ -1303,7 +1305,7 @@ WinMain                         endp
 align 4
 WinMainProc                     proc hWnd:DWORD,uMsg:DWORD,wParam:DWORD,lParam:DWORD
                                 ;
-    .if uMsg == WM_INITDIALOG
+    .if uMsg == WM_INITDIALOG ;WM_CREATE
         ;
         ;
         Invoke SetWindowLong,hWnd,GWL_USERDATA,lParam
@@ -1312,22 +1314,6 @@ WinMainProc                     proc hWnd:DWORD,uMsg:DWORD,wParam:DWORD,lParam:D
         Invoke SendMessage,hWnd,WM_SETICON,1,[eax]
         ;
         Invoke InitDialogWinMain,hWnd
-        ;
-        mov dFirstTimeShowed,TRUE ;First time showed is either by click2 on trayIcon or Hotkey
-        .if bHideApplicationWindowWhenOpening && (bIsUnhideApplicationWindowHotKeyActive  || bShowANotificationIcon)
-            Invoke GetWindowLong,hWnd,GWL_EXSTYLE
-            and eax,WS_EX_APPWINDOW ;+WS_EX_TOPMOST
-            or eax,WS_EX_TOOLWINDOW  ;WS_EX_WINDOWEDGE
-            Invoke ShowMainWindow,FALSE,eax
-            mov bIsWindowStyleTOOLWINDOW,TRUE  ;TODO: Remove TOOLWINDOW style when user changes settings checkbox for "hide window at..."
-            ;
-            ;Invoke ShowWindow,hWnd,SW_MINIMIZE ;+SW_HIDE ;To Show trayIcon
-            ;Invoke ShowWindow,hWnd,SW_HIDE ;To Show trayIcon
-            ;        Invoke SetWindowPos,eax, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE OR SWP_NOSIZE ;To mov Cover to top, all other controsl must have "WS_CLIPSIBLINGS"
-        .else
-            mov dFirstTimeShowed,FALSE
-            Invoke ForceWindowToTop,hWnd ;TODO: Use SeWindowPos
-        .endif
         ;
         Invoke GetThemeFonts
         Invoke SetTheme,hWnd,NULL
@@ -1343,6 +1329,29 @@ WinMainProc                     proc hWnd:DWORD,uMsg:DWORD,wParam:DWORD,lParam:D
             Invoke StartAutoShotLoop,NULL,bAutoShot_TimerMinutes,bAutoShot_TimerSeconds,FALSE
         .endif
         ;
+        ;.if uMsg == WM_INITDIALOG Return value
+        ;The dialog box procedure should return TRUE to direct the system to set the keyboard focus to the control specified by wParam.
+        mov eax,TRUE
+        .if bHideApplicationWindowWhenOpening && (bIsUnhideApplicationWindowHotKeyActive  || bShowANotificationIcon)
+            mov dIsWindowStyleTOOLWINDOW,FALSE
+            .if bShowANotificationIcon
+                mov dFirstTimeShowed,TRUE
+                Invoke ShowWindow,hWinMain,SW_MINIMIZE
+                Invoke GetWindowLong,hWnd,GWL_EXSTYLE
+                mov dIsWindowStyleTOOLWINDOW,eax
+                and eax,WS_EX_APPWINDOW
+                or eax,WS_EX_TOOLWINDOW
+                Invoke SetWindowLong,hWinMain,GWL_EXSTYLE,eax
+                @@:
+            .else
+                mov dFirstTimeShowed,FALSE
+                Invoke ShowWindow,hWinMain,SW_HIDE
+                Invoke ShowWindow,hWinMain,SW_MINIMIZE ;SW_SHOWMINNOACTIVE ;SW_HIDE
+            .endif                
+            xor eax,eax
+            ;Otherwise, it should return FALSE to prevent the system from setting the default keyboard focus.
+        .endif
+        ret
     ;.elseif uMsg == WM_SETFOCUS ;wParam A handle to the window that has lost the keyboard focus. This parameter can be NULL
 ;    .elseif uMsg == WM_ACTIVATE ;wParam The low-order word specifies whether the window is being activated or deactivated.
 ;                                ;lParam A handle to the window being activated or deactivated, depending on the value of the wParam parameter.
@@ -1409,16 +1418,13 @@ WinMainProc                     proc hWnd:DWORD,uMsg:DWORD,wParam:DWORD,lParam:D
         ;
         .if wParam == SIZE_RESTORED
             .if dFirstTimeShowed==FALSE  ;First time showed is either by click on trayIcon or Hotkey
-                Invoke ShowWindowAsync,hWinMain,SW_SHOW
+                Invoke ShowWindowAsync,hWinMain,SW_SHOWNORMAL ;SW_SHOW
             .else    
                 mov dFirstTimeShowed,FALSE
-                .if bIsWindowStyleTOOLWINDOW==TRUE  ;TODO: Remove TOOLWINDOW style when user changes settings checkbox for "hide window at..."
-                    mov bIsWindowStyleTOOLWINDOW,FALSE
-                    Invoke GetWindowLong,hWnd,GWL_EXSTYLE
-                    and eax,WS_EX_TOOLWINDOW ;+WS_EX_TOPMOST
-                    or eax,WS_EX_APPWINDOW  ;WS_EX_WINDOWEDGE                
-                    Invoke ShowMainWindow,TRUE,eax
+                .if dIsWindowStyleTOOLWINDOW!=NULL  ;TODO: Remove TOOLWINDOW style when user changes settings checkbox for "hide window at..."
+                    Invoke SetWindowLong,hWinMain,GWL_EXSTYLE,dIsWindowStyleTOOLWINDOW
                 .endif
+                Invoke ShowWindowAsync,hWinMain,SW_SHOWNORMAL ;SW_SHOW
             .endif
         .elseif wParam==SIZE_MINIMIZED
             Invoke IniManager,hWnd,1   ;(WinHandle),(0=GET,1=PUTMAIN,2=READMAIN,3=PUTSECURITY,4=READREGION,5=PUTREGION,6=READCOUNTER,7=PUTCOUNTER)
@@ -1450,7 +1456,7 @@ WinMainProc                     proc hWnd:DWORD,uMsg:DWORD,wParam:DWORD,lParam:D
                 .elseif bHideApplicationWindowWhenOpening && bIsUnhideApplicationWindowHotKeyActive
                     Invoke ShowWindowAsync,hWinMain,SW_HIDE
                 .else
-                    Invoke ShowWindow,hWnd,SW_MINIMIZE
+                    Invoke ShowWindow,hWinMain,SW_MINIMIZE
                 .endif
             .endif
             ;
@@ -1862,6 +1868,9 @@ WinMainProc                     proc hWnd:DWORD,uMsg:DWORD,wParam:DWORD,lParam:D
         ;.if wParam == WM_LBUTTONDOWN || wParam == WM_NCLBUTTONDOWN || WM_RBUTTONDOWN || wParam == WM_NCRBUTTONDOWN
             Invoke TakeScreenShot,bCaptureWindow,RUNTIME_CAPTURE_SENT_TO_NONE
         ;.endif
+;    .else
+;        invoke DefWindowProc, hWnd, uMsg, wParam, lParam   ; default processing
+;        ret
     .endif
     ;Invoke GetAsyncKeyState,VK_SNAPSHOT ;VK_SHIFT+, VK_CONTROL, and VK_MENU
     NextLoop:
