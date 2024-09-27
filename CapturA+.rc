@@ -1,7 +1,7 @@
 #define IDR_VERSION 1
 IDR_VERSION VERSIONINFO
-FILEVERSION 2,2024,09,26
-PRODUCTVERSION 2,2024,09,26
+FILEVERSION 2,2024,09,27
+PRODUCTVERSION 2,2024,09,27
 FILEOS 0x00000004
 FILETYPE 0x00000001
 BEGIN
@@ -9,8 +9,8 @@ BEGIN
   BEGIN
     BLOCK "040904E4"
     BEGIN
-      VALUE "FileVersion","2.2024.09.26\0"
-      VALUE "ProductVersion","2.2024.09.26\0"
+      VALUE "FileVersion","2.2024.09.27\0"
+      VALUE "ProductVersion","2.2024.09.27\0"
       VALUE "CompanyWebPage","www.carabez.com\0"
       VALUE "MailAddress","franciscojavier@carabez.com\0"
       VALUE "FileDescription","Screen Capture\0"

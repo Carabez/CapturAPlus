@@ -513,7 +513,7 @@ option casemap :none      ; Case Sensitive
     szHOTKEY_SHIFT_CTRL_ALT_E               db "SHIFT+CTRL+ALT+E",0
     ;
     szNewLine                               db 13,10,0
-    szApplicationHistory                    db "Version 2.2024.09.26",13,10
+    szApplicationHistory                    db "Version 2.2024.09.27",13,10
                                             db "-Fix bug when starting hidden.",13,10,13,10
                                             db "Version 2.2024.09.10",13,10
                                             db "-New look and feel but the same 'what you see is what you get'.",13,10,13,10
@@ -1423,6 +1423,7 @@ WinMainProc                     proc hWnd:DWORD,uMsg:DWORD,wParam:DWORD,lParam:D
                 mov dFirstTimeShowed,FALSE
                 .if dIsWindowStyleTOOLWINDOW!=NULL  ;TODO: Remove TOOLWINDOW style when user changes settings checkbox for "hide window at..."
                     Invoke SetWindowLong,hWinMain,GWL_EXSTYLE,dIsWindowStyleTOOLWINDOW
+                    mov dIsWindowStyleTOOLWINDOW,NULL
                 .endif
                 Invoke ShowWindowAsync,hWinMain,SW_SHOWNORMAL ;SW_SHOW
             .endif
@@ -2233,8 +2234,16 @@ InitDialogWinMain               proc hWnd:DWORD
         cmp eax,24       ;Tres elementos del array
         jle @B
         ;
+        szText szActivity_LoadLibraryInit,"-Loading Dll: "
+        Invoke UpdateActivityLog,addr szActivity_LoadLibraryInit,addr szCapturaDll,1,0
         Invoke CapturA_LoadLibrary
-        .if eax==NULL
+        .if eax
+            szText szActivity_LoadLibrarySucesss,"-Load Dll sucess: "
+            Invoke UpdateActivityLog,addr szActivity_LoadLibrarySucesss,addr szCapturaDll,1,0
+        .else            
+            szText szActivity_LoadLibraryFails,"-Load Dll fails: "
+            szText szActivity_LoadLibraryNotify,"Capture on each Mouse click not available."
+            Invoke UpdateActivityLog,addr szActivity_LoadLibraryFails,addr szActivity_LoadLibraryNotify,1,0
             Invoke SendMessage,hCombo5,CB_DELETESTRING,2,0 ;wParam=The zero-based index of the string to delete,lParam=This parameter is not used.
         .endif
         ;
@@ -2572,6 +2581,8 @@ InitDialogWinMain               proc hWnd:DWORD
             ;¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
         .endif
         ;
+        szText szActivity_FinishInitDialog,9,9,9,9,"****"
+        Invoke UpdateActivityLog,addr szActivity_FinishInitDialog,NULL,1,0        
         ;*************** About History *******************
         Invoke SetDlgItemText,hWnd,IDC_EDITBOX_ABOUT_LOG,addr szApplicationHistory
         ;
