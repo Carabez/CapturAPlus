@@ -513,7 +513,9 @@ option casemap :none      ; Case Sensitive
     szHOTKEY_SHIFT_CTRL_ALT_E               db "SHIFT+CTRL+ALT+E",0
     ;
     szNewLine                               db 13,10,0
-    szApplicationHistory                    db "Version 2.2024.09.27",13,10
+    szApplicationHistory                    db "Version 2.2024.10.15",13,10
+                                            db "-Fix bug saving settings.",13,10,13,10
+                                            db "Version 2.2024.09.27",13,10
                                             db "-Fix bug when starting hidden.",13,10,13,10
                                             db "Version 2.2024.09.10",13,10
                                             db "-New look and feel but the same 'what you see is what you get'.",13,10,13,10
@@ -3823,6 +3825,7 @@ IniManager                      proc  hWnd:DWORD, bAction:BYTE ;(WinHandle),(0=G
                         szText KeySnapShotCounter,"SnapShotCounter"
                         szText KeyAutoShotStartAtInit,"AutoShotStartAtInit"
                         szText KeyCopyScreenshotToClipboard,"CopyScreenshotToClipboard"
+                        szText KeyCopyArchivePathToClipboard,"CopyArchivePathToClipboard"
                         ;
                         szText KeyRunWhenWindowsStarts,"RunWhenWindowsStarts"
                         szText KeyHideApplicationWindowWhenOpening,"HideApplicationWindowWhenOpening"
@@ -3830,7 +3833,7 @@ IniManager                      proc  hWnd:DWORD, bAction:BYTE ;(WinHandle),(0=G
                         szText KeyOpenLastCaptureLocationPath,"OpenLastCaptureLocationPath"
                         szText KeyShowANotificationIcon,"ShowANotificationIcon"
                         szText KeyDisplayANotificationCapture,"DisplayANotificationCapture"
-                        szText KeyMinimizeWindowIntoNotificationIcon,"MinimizeWindowIntoNotificationIcon"
+                        ;szText KeyMinimizeWindowIntoNotificationIcon,"MinimizeWindowIntoNotificationIcon"
                         ;
                         szText KeyGeneralSetting,"BitwiseGeneralSetting"
                         szText KeyTargetType,"TargetType"
@@ -4115,6 +4118,20 @@ IniManager                      proc  hWnd:DWORD, bAction:BYTE ;(WinHandle),(0=G
                 mov eax,dDWORD
             .endif
         .endif
+        mov bCopyScreenShotToClipboard,al
+        ;
+        ;¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬ READ: Copy Archive Path To Clipboard ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
+        .if bUsarRegistro==FALSE
+            Invoke GetPrivateProfileInt, addr SectApp,addr KeyCopyArchivePathToClipboard,0,addr szIniFile
+        .else
+            mov dSize,sizeof dDWORD
+            Invoke RegQueryValueEx,hReg,addr KeyCopyArchivePathToClipboard,0,NULL,addr dDWORD,addr dSize
+            .if eax!=ERROR_SUCCESS
+                mov eax,1
+            .else
+                mov eax,dDWORD
+            .endif
+        .endif
         mov bCopyFilePathToClipboard ,al
         ;
         ;¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬ READ: Run When Windows Starts ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
@@ -4202,19 +4219,19 @@ IniManager                      proc  hWnd:DWORD, bAction:BYTE ;(WinHandle),(0=G
         .endif
         mov bDisplayANotificationCapture,al
         ;
-        ;¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬ READ: Minimize Window Into Notification Icon  ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
-        .if bUsarRegistro==FALSE
-            Invoke GetPrivateProfileInt, addr SectApp,addr KeyMinimizeWindowIntoNotificationIcon,0,addr szIniFile
-        .else
-            mov dSize,sizeof dDWORD
-            Invoke RegQueryValueEx,hReg,addr KeyMinimizeWindowIntoNotificationIcon,0,NULL,addr dDWORD,addr dSize
-            .if eax!=ERROR_SUCCESS
-                mov eax,1
-            .else
-                mov eax,dDWORD
-            .endif
-        .endif
-        mov bCopyScreenShotToClipboard,al
+;        ;¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬ READ: Show A Notification Icon  ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
+;        .if bUsarRegistro==FALSE
+;            Invoke GetPrivateProfileInt, addr SectApp,addr KeyMinimizeWindowIntoNotificationIcon,0,addr szIniFile
+;        .else
+;            mov dSize,sizeof dDWORD
+;            Invoke RegQueryValueEx,hReg,addr KeyMinimizeWindowIntoNotificationIcon,0,NULL,addr dDWORD,addr dSize
+;            .if eax!=ERROR_SUCCESS
+;                mov eax,1
+;            .else
+;                mov eax,dDWORD
+;            .endif
+;        .endif
+;        mov bShowANotificationIcon,al
         ;
         ;¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬ READ: ArchiveMode ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
         .if bUsarRegistro==FALSE
@@ -4420,7 +4437,7 @@ IniManager                      proc  hWnd:DWORD, bAction:BYTE ;(WinHandle),(0=G
             .endif
         .endif
         ;
-        ;¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬ WRITE: Copy Screenshot To Clipboard ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
+        ;¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬ WRITE: Copy Archive Path To Clipboard ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
         Invoke GetDlgItem,hWnd,IDC_CHK_COPY_PATH_TO_CLIPBOARD
         Invoke  SendMessage, eax, BM_GETCHECK, 0, 0
         .if eax==BST_CHECKED
@@ -4432,10 +4449,10 @@ IniManager                      proc  hWnd:DWORD, bAction:BYTE ;(WinHandle),(0=G
         .if bAction == 1
             .if bUsarRegistro==FALSE
                 Invoke wsprintf,addr szBuffer,addr szIntFormat,eax
-                Invoke WritePrivateProfileString,addr SectApp,addr KeyCopyScreenshotToClipboard,addr szBuffer,addr szIniFile
+                Invoke WritePrivateProfileString,addr SectApp,addr KeyCopyArchivePathToClipboard,addr szBuffer,addr szIniFile
             .else
                 mov dDWORD,eax
-                Invoke RegSetValueEx,hReg,addr KeyCopyScreenshotToClipboard,0,REG_DWORD,addr dDWORD,sizeof dDWORD
+                Invoke RegSetValueEx,hReg,addr KeyCopyArchivePathToClipboard,0,REG_DWORD,addr dDWORD,sizeof dDWORD
             .endif
         .endif
         ;
@@ -4566,10 +4583,10 @@ IniManager                      proc  hWnd:DWORD, bAction:BYTE ;(WinHandle),(0=G
         .if bAction == 1
             .if bUsarRegistro==FALSE
                 Invoke wsprintf,addr szBuffer,addr szIntFormat,eax
-                Invoke WritePrivateProfileString,addr SectApp,addr KeyMinimizeWindowIntoNotificationIcon,addr szBuffer,addr szIniFile
+                Invoke WritePrivateProfileString,addr SectApp,addr KeyCopyScreenshotToClipboard,addr szBuffer,addr szIniFile
             .else
                 mov dDWORD,eax
-                Invoke RegSetValueEx,hReg,addr KeyMinimizeWindowIntoNotificationIcon,0,REG_DWORD,addr dDWORD,sizeof dDWORD
+                Invoke RegSetValueEx,hReg,addr KeyCopyScreenshotToClipboard,0,REG_DWORD,addr dDWORD,sizeof dDWORD
             .endif
         .endif
         ;
